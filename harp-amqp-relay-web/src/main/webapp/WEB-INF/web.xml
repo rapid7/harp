@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
+
+  <display-name>AMQP Message Relay</display-name>
+  
+  <servlet>
+     <servlet-name>amqp-message-relay-web</servlet-name>
+     <servlet-class>com.rapid7.component.messaging.relay.server.MessageRelayServlet</servlet-class>
+     <init-param>
+        <param-name>amqp-connector-name</param-name>
+        <param-value>RELAY_SERVLET_DEFAULT</param-value>
+     </init-param>
+     <init-param>
+        <param-name>amqp-host</param-name>
+        <param-value>localhost</param-value>
+     </init-param>
+     <!-- Other parameters supported:
+        amqp-port : non-default port for the amqp connection
+        amqp-user : username for amqp connection
+        amqp-passwd : password for amqp connection
+      -->
+     <load-on-startup>1</load-on-startup>
+  </servlet>
+  
+  <servlet-mapping>
+     <servlet-name>amqp-message-relay-web</servlet-name>
+     <url-pattern>/relay/*</url-pattern>
+  </servlet-mapping>
+  
+  <filter>
+     <filter-name>amqp-message-relay-security-filter</filter-name>
+     <filter-class>com.rapid7.component.messaging.relay.server.MessageRelayNoSecurityFilter</filter-class>
+  </filter>
+
+  <filter-mapping>
+     <filter-name>amqp-message-relay-security-filter</filter-name>
+     <servlet-name>amqp-message-relay-web</servlet-name>
+  </filter-mapping>
+  
+</web-app>

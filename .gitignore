@@ -1,0 +1,8 @@
+.project
+.settings
+.classpath
+pom.properties
+MANIFEST.MF
+harp-amqp-relay-apps/target
+harp-amqp-relay-lib/target
+harp-amqp-relay-web/target

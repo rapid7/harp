@@ -1,0 +1,64 @@
+syntax = "proto2";
+option java_package = "com.rapid7.component.messaging.relay.encoding";
+option java_outer_classname = "MessageRelayEncoding";
+
+message Header {
+	required string name = 1;
+	required string value = 2;
+}
+
+message EncodedEnvelope {
+	required int64 deliveryTag = 1;
+	required string exchange = 2;
+	required string routingKey = 3;
+	optional bool isRedeliver = 4;
+}
+
+message EncodedProperties {
+	optional string appID = 1;
+	optional string contentEncoding = 2;
+	optional string contentType = 3;
+	optional string correlationId = 4;
+	optional int32 deliveryMode = 5;
+	optional string expiration = 6;
+	optional string messageID = 7;
+	optional int32 priority = 8;
+	optional string replyTo = 9;
+	optional int64 timestamp = 10;
+	optional string type = 11;
+	optional string userId = 12;
+	repeated Header header = 13;
+}
+
+message EncodedMessage {
+	required EncodedEnvelope envelope = 2;
+	optional EncodedProperties properties = 3;
+	optional bytes payload = 4;
+	optional bool doAck = 5 [default = false];
+	optional int32 channelID = 6;
+}
+
+message EncodedMessageList {
+	repeated EncodedMessage messages = 1;
+}
+
+message RelayControlMessage {
+	enum Command {
+		PUBLISH = 1;
+		UNPUBLISH = 2;
+		UNPUBLISH_ALL = 3;
+	}
+	required Command command = 1;
+
+	enum EndpointType {
+		QUEUE = 1;
+		FANOUT = 2;
+		DIRECT = 3;
+		TOPIC = 4;
+		HEADERS = 5;
+	}
+	optional EndpointType endpointType = 2;
+	optional string endpointName = 3;
+	repeated string bindings = 4;
+	optional bool fullAck = 5 [default = true];
+}

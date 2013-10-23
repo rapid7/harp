@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.rapid7.component.messaging</groupId>
+		<artifactId>harp-amqp-relay</artifactId>
+		<version>0.0.1</version>
+	</parent>
+	<artifactId>harp-amqp-relay-lib</artifactId>
+	<packaging>jar</packaging>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.github.igor-petruk.protobuf</groupId>
+				<artifactId>protobuf-maven-plugin</artifactId>
+                <version>0.6.3</version>
+				<executions>
+					<execution>
+                        <phase>process-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<inputDirectories>
+						<file>src/main/protobuf</file>
+					</inputDirectories>
+					<outputDirectory>src/main/java</outputDirectory>
+					<protocCommand>/usr/local/bin/protoc</protocCommand>
+					<cleanOutputFolder>false</cleanOutputFolder>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

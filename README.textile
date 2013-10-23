@@ -1,0 +1,42 @@
+h1. HARP
+
+h2. HTTP-based AMQP message Relay Project
+
+h3. Introduction
+
+HARP is an experimental project to facilitate the bi-directional relay of AMQP message traffic between two or more decoupled AMQP brokers using HTTP(S). The use of HTTP(S) as a relay protocol is particularly convenient in situations where firewall traversal is required, since most corporate firewalls are already configured to properly forward HTTP(S) traffic. Thus, HARP is particularly well suited to relay AMQP messages in remote (on-premise) client-to-cloud scenarios, allowing remote client-side and cloud-hosted messaging clients to communicate over AMQP transparently & securely while preserving "standard" HTTP(S) cloud service connection semantics.
+
+h3. HARP versus Shovel
+
+Compared to RabbitMQ's Shovel relay mechanism ( "http://www.rabbitmq.com/shovel.html":http://www.rabbitmq.com/shovel.html ), HARP has several differences and potential advantages:
+
+* HARP uses web-standard HTTP(S) as the relay protocol, rather than AMQP.
+* HARP relay forwarding is dynamic. Clients on either end of the relay connection can programmatically request forwarding of specific queues and/or exchanges at runtime. This means HARP can be used effectively as a relay for dynamic AMQP routing patterns such as RPC-over-AMQP.
+* HARP is capable of selectively forwarding specific routing key values from a Direct exchange. This allows you to set up a Direct exchange where some consumer queues are local and others are remote.
+* HARP is specifically designed to support cloud-based architectures. Each relay channel has a client-side and a (servlet-based) server-side, and a single server instance can support multiple clients. This facilitates the establishment of a large number of AMQP client message bus deployments that exchange messages with a single, centralized (potentially cloud-hosted) message bus.
+
+h3. Building HARP
+
+HARP is a multi-module Maven project, so you will need to have Maven installed. All of its dependencies are hosted in Maven central *except* for the Google Protobuf compiler, which you can download "here":https://code.google.com/p/protobuf/downloads/list. Currently the project is pinned to Protobuf version 2.4.1, although newer versions can be used with a few simple POM file tweaks. The build expects the protoc compiler to be installed in /usr/local/bin, although, again, this can be changed easily in the harp-amqp-relay-lib POM.
+
+Once Protobuf is installed properly, a simply running "mvn install" at the top level should build everything (fingers crossed!).
+
+h3. It's built. What now?
+
+Once you get the build done, all of the "good stuff" will be in the target directories of the three Maven modules. These modules and what they produce are described below:
+
+* _harp-amqp-relay-lib_
+** This is the main relay logic library module. It builds a jar file, harp-amqp-relay-lib-<version>.jar, which contains the logic and APIs necessary to build relay clients or server-side implementations.
+* _harp-amqp-relay-web_
+** This builds a server-side implementation of the HARP relay, packaged as a standard web servlet. The target WAR archive, harp-amqp-relay-web.war, can be drop-in deployed in standard servlet containers, including recent releases of Tomcat and Jetty. 
+** The servlet accepts several initialization parameters that control its connection to the server-side AMQP broker. These parameters are listed and described in src/main/webapp/WEB-INF/web.xml. By default the serlet will connect to a broker running on localhost with the standard AMQP port and no username/password.
+* _harp-amqp-relay-apps_
+** This project build a set of useful sample and utility command line applications, including a sample relay client implementation. These command line apps can found in target/appassembler/bin, and come in both *nix and Windows (BAT) versions:
+*** simple-relay-client
+**** A basic example of a client-side relay application. While this can be used as a standalone relay client, the real intent is to illustrate how to use the client-side relay APIs incorporated into harp-amqp-relay-lib, which can easily be embedded into any client java application.
+*** amqp-forward
+**** A simple client to generate queue or exchange forwarding requests from the command line. Again, this is meant as an illustration, since in most cases the API for making a forwarding request would be embedded into message clients & called programmatically.
+*** amqp-generator
+**** A test client for generating simple, textual AMQP messages and sending them to a targeted local queue or exchange. Useful, along with amqp-monitor, for testing relay functionality.
+*** amqp-monitor
+**** A test client that pulls and displays the contents of AMQP messages sent to the specified local queue. Useful, along with amqp-generator, for testing relay functionality. Note that the monitor automatically generates a relay forwarding request for the monitored queue.
