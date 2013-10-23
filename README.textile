@@ -17,7 +17,9 @@ Compared to RabbitMQ's Shovel relay mechanism ( "http://www.rabbitmq.com/shovel.
 
 h3. Building HARP
 
-HARP is a multi-module Maven project, so you will need to have Maven installed. All of its dependencies are hosted in Maven central *except* for the Google Protobuf compiler, which you can download "here":https://code.google.com/p/protobuf/downloads/list. Currently the project is pinned to Protobuf version 2.4.1, although newer versions can be used with a few simple POM file tweaks. The build expects the protoc compiler to be installed in /usr/local/bin, although, again, this can be changed easily in the harp-amqp-relay-lib POM.
+HARP is a multi-module Maven project, so you will need to have Maven installed, as well as a java-7-compliant JDK (JDK 6 also works, but you will need to change the jdk.version property in the main POM file). 
+
+All of the project dependencies are hosted in Maven central *except* for the Google Protobuf compiler, which you can download "here":https://code.google.com/p/protobuf/downloads/list. Currently the project is pinned to Protobuf version 2.4.1, although newer versions can be used with a few simple POM file tweaks. The build expects the protoc compiler to be installed in /usr/local/bin, although, again, this can be changed easily in the harp-amqp-relay-lib POM.
 
 Once Protobuf is installed properly, a simply running "mvn install" at the top level should build everything (fingers crossed!).
 
@@ -40,3 +42,20 @@ Once you get the build done, all of the "good stuff" will be in the target direc
 **** A test client for generating simple, textual AMQP messages and sending them to a targeted local queue or exchange. Useful, along with amqp-monitor, for testing relay functionality.
 *** amqp-monitor
 **** A test client that pulls and displays the contents of AMQP messages sent to the specified local queue. Useful, along with amqp-generator, for testing relay functionality. Note that the monitor automatically generates a relay forwarding request for the monitored queue.
+
+h3. Setting up an example
+
+To see how HARP works, you can set up a simple example installation. For this we need two hosts running an AMQP bus, which we will call "SERVER" and "CLIENT".
+
+# Install, if necessary, Tomcat or Jetty on the SERVER host and deploy harp-amqp-relay-web.
+# On the the CLIENT host, run simple-relay-client, specifying the root URL of the Tomcat/Jetty instance running on SERVER (e.g. "simple-relay-client http://SERVER.mydomain.com:8080/"). 
+## At this point, the relay between the two brokers on SERVER and CLIENT has been established.
+# On SERVER, run amqp-monitor, specifying a test queue name (e.g. "amqp-monitor testA").
+# On CLIENT run amqp-generator, specifying the same test queue name (e.g. "amqp-generator testA") and type a few lines of text. These lines should appear on SERVER in the terminal window running amqp-monitor. This shows the full end-to-end relay chain has been established. Messages are being sent by amqp-generator to the local queue (on CLIENT) and then are transparently forwarded to the queue with the same name on SERVER, where they are picked up by amqp-monitor.
+# You can also try running the generator/monitor with a different queue name with the hosts reversed - in other words run the monitor on CLIENT and the generator on SERVER. This demonstrates the bi-directional nature of the relay.
+## You can also test the auto-message-generation features of amqp-generator. This can be used to generate a large number of messages quite rapidly, which is useful for testing relay performance.
+
+h3. Implementation Notes
+
+* HARP uses the RabbitMQ client API to connect to the AMQP broker. This _should_ work with non-RabbitMQ broker implementations, including QPid.
+* HARP cycles the HTTP(S) connection between client and server regularly (they cycle rate can be controlled by parameters specified by the client when connecting). Note that decreasing the cycle rate/increasing the connection time may improve efficiency somewhat, particularly for HTTPS connections, but if the connection time is too long intervening infrastructure, such as web proxies, may cause timeout errors. HARP uses an HTTP/1.1 connection to reduce the overhead from connection cycling.
