@@ -9,6 +9,8 @@
 	</parent>
 	<artifactId>harp-amqp-relay-lib</artifactId>
 	<packaging>jar</packaging>
+	<name>HARP AMQP Message Relay Library</name>
+	<description>Main library for message relay logic and APIs</description>
 	<build>
 		<plugins>
 			<plugin>

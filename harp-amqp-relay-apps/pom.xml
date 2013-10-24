@@ -8,7 +8,7 @@
 		<version>0.0.1</version>
 	</parent>
 	<artifactId>harp-amqp-relay-apps</artifactId>
-	<name>HARP AMQP MessageRelay Apps</name>
+	<name>HARP AMQP Message Relay Sample Apps</name>
 	<description>Simple command line testing tools and example client apps for the HARP HTTP AMQP Message Relay library</description>
 
 	<dependencies>
